@@ -2,7 +2,6 @@
 
 use std::{cmp, ffi::OsStr, fmt::{self, Display}, hash, ops, str::Utf8Chunks};
 use either::Either;
-use os_str_bytes::OsStrBytes;
 use smallvec::{smallvec, SmallVec};
 use unicode_segmentation::UnicodeSegmentation;
 use unicode::{CharName, UnicodeCharacter, Diacritic, Direction};
@@ -40,7 +39,7 @@ impl Text
         Text(text.graphemes(true).map(Grapheme::from_valid).collect())
     }
 
-    pub fn parse_os_str(text: &OsStr) -> Self { Text::parse_bytes(&text.to_raw_bytes()) }
+    pub fn parse_os_str(text: &OsStr) -> Self { Text::parse_bytes(&text.as_encoded_bytes()) }
 
     pub fn parse_bytes(text: &[u8]) -> Self
     {
