@@ -3,7 +3,7 @@ use phf::{phf_map, phf_set};
 
 // TODO: Replace `ucd` and `unicode_names2` dependencies with custom tables.
 
-pub trait UnicodeCharacter {
+pub trait Character {
     type Name: Display;
 
     fn name(&self) -> Option<Self::Name>;
@@ -37,7 +37,7 @@ pub enum Direction {
     Neutral,
 }
 
-impl UnicodeCharacter for char {
+impl Character for char {
     type Name = CharName;
 
     fn name(&self) -> Option<CharName> {
@@ -49,12 +49,12 @@ impl UnicodeCharacter for char {
     }
 
     fn control_code(&self) -> Option<ControlCode> {
-        CONTROL_CODES.get(&self).map(|(code, name)| ControlCode { code, name })
+        CONTROL_CODES.get(self).map(|(code, name)| ControlCode { code, name })
     }
 
     fn diacritic(&self) -> Diacritic {
         if !ucd::Codepoint::is_grapheme_extend(*self) { Diacritic::None }
-        else if DOUBLE_WIDTH_DIACRITICS.contains(&self) { Diacritic::Double }
+        else if DOUBLE_WIDTH_DIACRITICS.contains(self) { Diacritic::Double }
         else { Diacritic::Single }
     }
 
@@ -62,15 +62,17 @@ impl UnicodeCharacter for char {
         use ucd::BidiClass as Bidi;
 
         match ucd::Codepoint::bidi_class(*self) {
-            Bidi::LeftToRight => Direction::Ltr,
-            Bidi::RightToLeft => Direction::Rtl,
-            Bidi::ArabicLetter => Direction::Rtl,
-            Bidi::LeftToRightEmbedding => Direction::Ltr,
-            Bidi::LeftToRightOverride => Direction::Ltr,
-            Bidi::RightToLeftEmbedding => Direction::Rtl,
-            Bidi::RightToLeftOverride => Direction::Rtl,
+            Bidi::LeftToRight |
+            Bidi::LeftToRightEmbedding |
+            Bidi::LeftToRightOverride |
             Bidi::LeftToRightIsolate => Direction::Ltr,
+
+            Bidi::RightToLeft |
+            Bidi::ArabicLetter |
+            Bidi::RightToLeftEmbedding |
+            Bidi::RightToLeftOverride |
             Bidi::RightToLeftIsolate => Direction::Rtl,
+
             _ => Direction::Neutral,
         }
     }

@@ -4,7 +4,7 @@ use std::{cmp, ffi::OsStr, fmt::{self, Display}, hash, ops, str::Utf8Chunks};
 use either::Either;
 use smallvec::{smallvec, SmallVec};
 use unicode_segmentation::UnicodeSegmentation;
-use unicode::{CharName, UnicodeCharacter, Diacritic, Direction};
+use unicode::{CharName, Character, Diacritic, Direction};
 
 mod unicode;
 
@@ -39,7 +39,7 @@ impl Text {
     }
 
     pub fn parse_os_str(text: &OsStr) -> Self {
-        Text::parse_bytes(&text.as_encoded_bytes())
+        Text::parse_bytes(text.as_encoded_bytes())
     }
 
     pub fn parse_bytes(text: &[u8]) -> Self {
@@ -193,20 +193,17 @@ impl Display for Text {
 
 impl Display for Grapheme {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match &**self {
-            [c] => c.fmt(f),
-            _ => {
-                let mut codepoints = self.codepoints();
-                f.write_str("[")?;
+        if let [c] = &**self { c.fmt(f) } else {
+            let mut codepoints = self.codepoints();
+            f.write_str("[")?;
 
-                if let Some(first) = codepoints.next() { first.fmt(f)?; }
-                for codepoint in codepoints {
-                    f.write_str(" + ")?;
-                    codepoint.fmt(f)?;
-                }
+            if let Some(first) = codepoints.next() { first.fmt(f)?; }
+            for codepoint in codepoints {
+                f.write_str(" + ")?;
+                codepoint.fmt(f)?;
+            }
 
-                f.write_str("]")
-            },
+            f.write_str("]")
         }
     }
 }
