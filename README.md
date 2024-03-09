@@ -5,6 +5,7 @@
 ## Installation
 
 To install `unicode-analyze`, run `cargo install --git https://github.com/Esper89/unicode-analyze`.
+This crate requires a nightly installation of the Rust toolchain.
 
 ## Examples
 
