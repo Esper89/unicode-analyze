@@ -2,6 +2,10 @@
 
 `unicode-analyze` is a simple command-line program for investigating strings of UTF-8 text.
 
+## Installation
+
+To install `unicode-analyze`, run `cargo install --git https://github.com/Esper89/unicode-analyze`.
+
 ## Examples
 
 `unicode-analyze` shows the characters that make up a string:
@@ -109,18 +113,14 @@ U+FFFF ∅ NOT A CHARACTER
 
 ## License
 
-```
-Copyright (C) 2023 Esper Thomson
+Copyright © 2023–2024 Esper Thomson
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of version 3 of the GNU Affero General Public License,
-as published by the Free Software Foundation.
+This program is free software: you can redistribute it and/or modify it under the terms of version 3
+of the GNU Affero General Public License, as published by the Free Software Foundation.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero
+General Public License for more details.
 
-You should have received a copy of the GNU Affero General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
-```
+You should have received a copy of the GNU Affero General Public License along with this program. If
+not, see <https://www.gnu.org/licenses/>.
