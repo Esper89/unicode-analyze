@@ -51,7 +51,7 @@ impl Text {
         Text(Utf8Chunks::new(text)
             .flat_map(|chunk| {
                 let (valid, invalid) = (chunk.valid(), chunk.invalid());
-                let mut items = SmallVec::<[Utf8<'_>; 2]>::new();
+                let mut items = SmallVec::<[Utf8; 2]>::new();
 
                 if !valid.is_empty() { items.push(Utf8::Valid(valid)) }
                 if !invalid.is_empty() { items.push(Utf8::Invalid(invalid)) }
@@ -177,7 +177,7 @@ fn display_with(f: impl Fn(&mut fmt::Formatter) -> fmt::Result) -> impl Display 
 }
 
 impl Display for Text {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut graphemes = self.graphemes().filter(|g| g.len() > 0);
         f.write_str("[")?;
 
@@ -192,7 +192,7 @@ impl Display for Text {
 }
 
 impl Display for Grapheme {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &**self {
             [c] => c.fmt(f),
             _ => {
@@ -212,7 +212,7 @@ impl Display for Grapheme {
 }
 
 impl Display for Codepoint {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use CodepointKind as Ck;
 
         match self.0 {

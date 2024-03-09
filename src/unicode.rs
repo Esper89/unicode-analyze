@@ -80,7 +80,7 @@ impl UnicodeCharacter for char {
 pub struct CharName(unicode_names2::Name);
 
 impl Display for CharName {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { self.0.fmt(f) }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { self.0.fmt(f) }
 }
 
 // Characters that should be replaced with abbreviations.
