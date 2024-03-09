@@ -2,19 +2,22 @@
 name = "unicode-analyze"
 version = "0.1.0"
 edition = "2021"
+description = "A simple command-line program for investigating strings of UTF-8 text"
+repository = "https://github.com/Esper89/unicode-analyze"
 license = "AGPL-3.0-only"
 publish = false
 
 [profile.release]
 lto = true
+panic = "abort"
 codegen-units = 1
 strip = true
 
 [dependencies]
-either = "1.8.1"
-phf = { version = "0.11.1", features = ["macros"] }
-smallvec = "1.10.0"
-ucd = "0.1.1"
-unicode-segmentation = "1.10.1"
-unicode-width = "0.1.10"
-unicode_names2 = "0.6.0"
+either = "1.8"
+phf = { version = "0.11", features = ["macros"] }
+smallvec = "1.10"
+ucd = "0.1"
+unicode-segmentation = "1.10"
+unicode-width = "0.1"
+unicode_names2 = "0.6"
