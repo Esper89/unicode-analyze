@@ -1,10 +1,9 @@
 use std::fmt::{self, Display};
 use phf::{phf_map, phf_set};
 
-// TODO Replace `ucd` and `unicode_names2` dependencies with custom tables.
+// TODO: Replace `ucd` and `unicode_names2` dependencies with custom tables.
 
-pub trait UnicodeCharacter
-{
+pub trait UnicodeCharacter {
     type Name: Display;
 
     fn name(&self) -> Option<Self::Name>;
@@ -19,53 +18,60 @@ pub trait UnicodeCharacter
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub struct ControlCode { pub code: &'static str, pub name: &'static str }
+pub struct ControlCode {
+    pub code: &'static str,
+    pub name: &'static str,
+}
 
 #[derive(Debug, Clone)]
-pub enum Diacritic { No, Single, Double }
+pub enum Diacritic {
+    None,
+    Single,
+    Double,
+}
 
 #[derive(Debug, Clone)]
-pub enum Direction { LeftToRight, RightToLeft, Neutral }
+pub enum Direction {
+    Ltr,
+    Rtl,
+    Neutral,
+}
 
-impl UnicodeCharacter for char
-{
+impl UnicodeCharacter for char {
     type Name = CharName;
 
-    fn name(&self) -> Option<CharName> { unicode_names2::name(*self).map(CharName) }
+    fn name(&self) -> Option<CharName> {
+        unicode_names2::name(*self).map(CharName)
+    }
 
-    fn width(&self) -> usize { unicode_width::UnicodeWidthChar::width(*self).unwrap_or(0) }
+    fn width(&self) -> usize {
+        unicode_width::UnicodeWidthChar::width(*self).unwrap_or(0)
+    }
 
-    fn control_code(&self) -> Option<ControlCode>
-    {
+    fn control_code(&self) -> Option<ControlCode> {
         CONTROL_CODES.get(&self).map(|(code, name)| ControlCode { code, name })
     }
 
-    fn diacritic(&self) -> Diacritic
-    {
-        use Diacritic::*;
-
-        if !ucd::Codepoint::is_grapheme_extend(*self) { No }
-        else if DOUBLE_WIDTH_DIACRITICS.contains(&self) { Double }
-        else { Single }
+    fn diacritic(&self) -> Diacritic {
+        if !ucd::Codepoint::is_grapheme_extend(*self) { Diacritic::None }
+        else if DOUBLE_WIDTH_DIACRITICS.contains(&self) { Diacritic::Double }
+        else { Diacritic::Single }
     }
 
-    fn direction(&self) -> Direction
-    {
-        use Direction::*;
+    fn direction(&self) -> Direction {
         use ucd::BidiClass as Bidi;
 
-        match ucd::Codepoint::bidi_class(*self)
-        {
-            Bidi::LeftToRight => LeftToRight,
-            Bidi::RightToLeft => RightToLeft,
-            Bidi::ArabicLetter => RightToLeft,
-            Bidi::LeftToRightEmbedding => LeftToRight,
-            Bidi::LeftToRightOverride => LeftToRight,
-            Bidi::RightToLeftEmbedding => RightToLeft,
-            Bidi::RightToLeftOverride => RightToLeft,
-            Bidi::LeftToRightIsolate => LeftToRight,
-            Bidi::RightToLeftIsolate => RightToLeft,
-            _ => Neutral,
+        match ucd::Codepoint::bidi_class(*self) {
+            Bidi::LeftToRight => Direction::Ltr,
+            Bidi::RightToLeft => Direction::Rtl,
+            Bidi::ArabicLetter => Direction::Rtl,
+            Bidi::LeftToRightEmbedding => Direction::Ltr,
+            Bidi::LeftToRightOverride => Direction::Ltr,
+            Bidi::RightToLeftEmbedding => Direction::Rtl,
+            Bidi::RightToLeftOverride => Direction::Rtl,
+            Bidi::LeftToRightIsolate => Direction::Ltr,
+            Bidi::RightToLeftIsolate => Direction::Rtl,
+            _ => Direction::Neutral,
         }
     }
 }
@@ -73,14 +79,12 @@ impl UnicodeCharacter for char
 #[derive(Debug, Clone)]
 pub struct CharName(unicode_names2::Name);
 
-impl Display for CharName
-{
+impl Display for CharName {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { self.0.fmt(f) }
 }
 
 // Characters that should be replaced with abbreviations.
-const CONTROL_CODES: phf::Map<char, (&str, &str)> = phf_map!
-{
+const CONTROL_CODES: phf::Map<char, (&str, &str)> = phf_map! {
     // Block: Basic Latin
     '\0' => ("NUL", "NULL"),
     '\x01' => ("SOH", "START OF HEADING"),
@@ -203,9 +207,8 @@ const CONTROL_CODES: phf::Map<char, (&str, &str)> = phf_map!
     '\u{FFFB}' => ("IAT", "INTERLINEAR ANNOTATION TERMINATOR"),
 };
 
-// Combining characters that need placeholder characters before and after.
-const DOUBLE_WIDTH_DIACRITICS: phf::Set<char> = phf_set!
-{
+// Combining characters that need placeholder characters both before and after.
+const DOUBLE_WIDTH_DIACRITICS: phf::Set<char> = phf_set! {
     // Block: Combining Diacritical Marks
     '\u{035C}', // COMBINING DOUBLE BREVE BELOW
     '\u{035D}', // COMBINING DOUBLE BREVE
