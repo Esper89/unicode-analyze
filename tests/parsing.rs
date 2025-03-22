@@ -1,16 +1,17 @@
 use unicode_analyze::Text;
 
-struct ValidationData {
+struct TestCase {
     text: Text,
     string_rep: &'static str,
     out: &'static [(&'static str, &'static str, &'static str)],
 }
 
-impl ValidationData {
-    fn verify_output(self) {
+impl TestCase {
+    fn run(self) {
         assert_eq!(self.text.to_string(), self.string_rep);
         let codepoints: Vec<_> = self.text.codepoints().collect();
         assert_eq!(self.out.len(), codepoints.len());
+
         for ((value, character, name), codepoint) in self.out.iter().cloned().zip(codepoints) {
             assert_eq!(value, codepoint.display_value().to_string());
             assert_eq!(character, codepoint.display_character().to_string());
@@ -22,7 +23,7 @@ impl ValidationData {
 #[test]
 fn hello_world() {
     // 'Hello, World!'
-    ValidationData {
+    TestCase {
         text: Text::parse_str("Hello, World!"),
         string_rep: "['H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!']",
         out: &[
@@ -40,13 +41,14 @@ fn hello_world() {
             ("U+0064", "'d'", "LATIN SMALL LETTER D"),
             ("U+0021", "'!'", "EXCLAMATION MARK"),
         ],
-    }.verify_output()
+    }
+    .run()
 }
 
 #[test]
 fn control_codes() {
     // $'\v\t\r\n'
-    ValidationData {
+    TestCase {
         text: Text::parse_str("\u{000B}\t\r\n"),
         string_rep: "[VT, HT, [CR + LF]]",
         out: &[
@@ -55,13 +57,14 @@ fn control_codes() {
             ("U+000D", "CR", "CARRIAGE RETURN"),
             ("U+000A", "LF", "LINE FEED"),
         ],
-    }.verify_output()
+    }
+    .run()
 }
 
 #[test]
 fn emojis() {
     // '👩‍👩‍👧‍👦 😵‍💫'
-    ValidationData {
+    TestCase {
         text: Text::parse_str("👩‍👩‍👧‍👦 😵‍💫"),
         string_rep: "[['👩' + ZWJ + '👩' + ZWJ + '👧' + ZWJ + '👦'], ' ', ['😵' + ZWJ + '💫']]",
         out: &[
@@ -77,15 +80,17 @@ fn emojis() {
             ("U+200D", "ZWJ", "ZERO WIDTH JOINER"),
             ("U+01F4AB", "'💫'", "DIZZY SYMBOL"),
         ],
-    }.verify_output()
+    }
+    .run()
 }
 
 #[test]
 fn combining_characters() {
     // m͌͊e̵͂o͐͝w͐̾
-    ValidationData {
+    TestCase {
         text: Text::parse_str("m͌͊e̵͂o͐͝w͐̾"),
-        string_rep: "[['m' + '◌͌' + '◌͊'], ['e' + '◌̵' + '◌͂'], ['o' + '◌͐' + '◌͝◌'], ['w' + '◌͐' + '◌̾']]",
+        string_rep: "[['m' + '◌͌' + '◌͊'], ['e' + '◌̵' + '◌͂'], ['o' + '◌͐' + '◌͝◌'], ['w' + '◌͐' \
+                     + '◌̾']]",
         out: &[
             ("U+006D", "'m'", "LATIN SMALL LETTER M"),
             ("U+034C", "'◌͌'", "COMBINING ALMOST EQUAL TO ABOVE"),
@@ -100,15 +105,17 @@ fn combining_characters() {
             ("U+0350", "'◌͐'", "COMBINING RIGHT ARROWHEAD ABOVE"),
             ("U+033E", "'◌̾'", "COMBINING VERTICAL TILDE"),
         ],
-    }.verify_output()
+    }
+    .run()
 }
 
 #[test]
 fn rtl() {
     // اَلْعَرَبِيَّةُ
-    ValidationData {
+    TestCase {
         text: Text::parse_str("اَلْعَرَبِيَّةُ"),
-        string_rep: "[['‎ا‎' + '◌َ'], ['‎ل‎' + '◌ْ'], ['‎ع‎' + '◌َ'], ['‎ر‎' + '◌َ'], ['‎ب‎' + '◌ِ'], ['‎ي‎' + '◌َ' + '◌ّ'], ['‎ة‎' + '◌ُ']]",
+        string_rep: "[['‎ا‎' + '◌َ'], ['‎ل‎' + '◌ْ'], ['‎ع‎' + '◌َ'], ['‎ر‎' + '◌َ'], ['‎ب‎' + '◌ِ'\
+                     ], ['‎ي‎' + '◌َ' + '◌ّ'], ['‎ة‎' + '◌ُ']]",
         out: &[
             ("U+0627", "'‎ا‎'", "ARABIC LETTER ALEF"),
             ("U+064E", "'◌َ'", "ARABIC FATHA"),
@@ -126,13 +133,14 @@ fn rtl() {
             ("U+0629", "'‎ة‎'", "ARABIC LETTER TEH MARBUTA"),
             ("U+064F", "'◌ُ'", "ARABIC DAMMA"),
         ],
-    }.verify_output()
+    }
+    .run()
 }
 
 #[test]
 fn invalid() {
     // $'\xF2\x80\x80\x80\xF4\x8F\xBF\xBD\xEF\xBF\xBF\xFF'
-    ValidationData {
+    TestCase {
         text: Text::parse_bytes(&[242, 128, 128, 128, 244, 143, 191, 189, 239, 191, 191, 255]),
         string_rep: "[U+080000, U+10FFFD, U+FFFF, 0xFF]",
         out: &[
@@ -141,5 +149,6 @@ fn invalid() {
             ("U+FFFF", "∅", "NOT A CHARACTER"),
             ("0xFF", "�", "INVALID UTF-8"),
         ],
-    }.verify_output()
+    }
+    .run()
 }
