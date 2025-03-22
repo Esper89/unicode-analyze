@@ -1,18 +1,14 @@
-#![feature(utf8_chunks)]
-
-use std::{cmp, ffi::OsStr, fmt::{self, Display}, hash, ops, str::Utf8Chunks};
+use std::{cmp, ffi::OsStr, fmt::{self, Display}, hash, ops};
 use either::Either;
-use smallvec::{smallvec, SmallVec};
+use smallvec::{SmallVec, smallvec};
 use unicode_segmentation::UnicodeSegmentation;
-use unicode::{CharName, Character, Diacritic, Direction};
+use unicode::{Character, CharName, Diacritic, Direction};
 
 mod unicode;
 
 // TODO: Reduce the size of each `Codepoint` or switch to some kind of iteration.
 
 // TODO: Add doc comments.
-
-// TODO: Replace the `utf8_chunks` unstable feature with something else.
 
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Hash, Default)]
 pub struct Text(Vec<Grapheme>);
@@ -48,7 +44,7 @@ impl Text {
             Invalid(&'a [u8]),
         }
 
-        Text(Utf8Chunks::new(text)
+        Text(text.utf8_chunks()
             .flat_map(|chunk| {
                 let (valid, invalid) = (chunk.valid(), chunk.invalid());
                 let mut items = SmallVec::<[Utf8; 2]>::new();
@@ -178,7 +174,7 @@ fn display_with(f: impl Fn(&mut fmt::Formatter) -> fmt::Result) -> impl Display 
 
 impl Display for Text {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut graphemes = self.graphemes().filter(|g| g.len() > 0);
+        let mut graphemes = self.graphemes().filter(|g| !g.is_empty());
         f.write_str("[")?;
 
         if let Some(first) = graphemes.next() { first.fmt(f)?; }
