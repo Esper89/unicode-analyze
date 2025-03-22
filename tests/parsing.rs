@@ -131,16 +131,9 @@ fn rtl() {
 
 #[test]
 fn invalid() {
-    use std::ffi::OsStr;
-
     // $'\xF2\x80\x80\x80\xF4\x8F\xBF\xBD\xEF\xBF\xBF\xFF'
     ValidationData {
-        text: Text::parse_os_str(
-            // SAFETY: these are just the encoded bytes, e.g. 0xF2 == 242
-            unsafe { OsStr::from_encoded_bytes_unchecked(
-                &[242, 128, 128, 128, 244, 143, 191, 189, 239, 191, 191, 255]
-            ) }
-        ),
+        text: Text::parse_bytes(&[242, 128, 128, 128, 244, 143, 191, 189, 239, 191, 191, 255]),
         string_rep: "[U+080000, U+10FFFD, U+FFFF, 0xFF]",
         out: &[
             ("U+080000", "?", "UNKNOWN CHARACTER"),
