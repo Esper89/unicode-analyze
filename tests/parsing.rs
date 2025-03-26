@@ -9,7 +9,7 @@ struct TestCase {
 impl TestCase {
     fn run(self) {
         assert_eq!(self.text.to_string(), self.string_rep);
-        let codepoints: Vec<_> = self.text.codepoints().collect();
+        let codepoints = self.text.codepoints().collect::<Vec<_>>();
         assert_eq!(self.out.len(), codepoints.len());
 
         for ((value, character, name), codepoint) in self.out.iter().cloned().zip(codepoints) {
@@ -22,7 +22,6 @@ impl TestCase {
 
 #[test]
 fn hello_world() {
-    // 'Hello, World!'
     TestCase {
         text: Text::parse_str("Hello, World!"),
         string_rep: "['H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!']",
@@ -47,7 +46,6 @@ fn hello_world() {
 
 #[test]
 fn control_codes() {
-    // $'\v\t\r\n'
     TestCase {
         text: Text::parse_str("\u{000B}\t\r\n"),
         string_rep: "[VT, HT, [CR + LF]]",
@@ -63,7 +61,6 @@ fn control_codes() {
 
 #[test]
 fn emojis() {
-    // '👩‍👩‍👧‍👦 😵‍💫'
     TestCase {
         text: Text::parse_str("👩‍👩‍👧‍👦 😵‍💫"),
         string_rep: "[['👩' + ZWJ + '👩' + ZWJ + '👧' + ZWJ + '👦'], ' ', ['😵' + ZWJ + '💫']]",
@@ -86,7 +83,6 @@ fn emojis() {
 
 #[test]
 fn combining_characters() {
-    // m͌͊e̵͂o͐͝w͐̾
     TestCase {
         text: Text::parse_str("m͌͊e̵͂o͐͝w͐̾"),
         string_rep: "[['m' + '◌͌' + '◌͊'], ['e' + '◌̵' + '◌͂'], ['o' + '◌͐' + '◌͝◌'], ['w' + '◌͐' \
@@ -111,11 +107,10 @@ fn combining_characters() {
 
 #[test]
 fn rtl() {
-    // اَلْعَرَبِيَّةُ
     TestCase {
         text: Text::parse_str("اَلْعَرَبِيَّةُ"),
-        string_rep: "[['‎ا‎' + '◌َ'], ['‎ل‎' + '◌ْ'], ['‎ع‎' + '◌َ'], ['‎ر‎' + '◌َ'], ['‎ب‎' + '◌ِ'\
-                     ], ['‎ي‎' + '◌َ' + '◌ّ'], ['‎ة‎' + '◌ُ']]",
+        string_rep: "[['‎ا‎' + '◌َ'], ['‎ل‎' + '◌ْ'], ['‎ع‎' + '◌َ'], ['‎ر‎' + '◌َ'], ['‎ب‎' + '◌ِ'], ['‎ي‎' + '◌َ' \
+                    + '◌ّ'], ['‎ة‎' + '◌ُ']]",
         out: &[
             ("U+0627", "'‎ا‎'", "ARABIC LETTER ALEF"),
             ("U+064E", "'◌َ'", "ARABIC FATHA"),
@@ -139,11 +134,8 @@ fn rtl() {
 
 #[test]
 fn invalid() {
-    // $'\xF2\x80\x80\x80\xF4\x8F\xBF\xBD\xEF\xBF\xBF\xFF'
     TestCase {
-        text: Text::parse_bytes(
-            &[0xF2, 0x80, 0x80, 0x80, 0xF4, 0x8F, 0xBF, 0xBD, 0xEF, 0xBF, 0xBF, 0xFF]
-        ),
+        text: Text::parse_bytes(b"\xF2\x80\x80\x80\xF4\x8F\xBF\xBD\xEF\xBF\xBF\xFF"),
         string_rep: "[U+080000, U+10FFFD, U+FFFF, 0xFF]",
         out: &[
             ("U+080000", "?", "UNKNOWN CHARACTER"),
