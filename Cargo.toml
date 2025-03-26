@@ -1,6 +1,6 @@
 [package]
 name = "unicode-analyze"
-version = "0.1.1"
+version = "0.1.0"
 edition = "2021"
 description = "A simple command-line program for investigating strings of UTF-8 text"
 repository = "https://github.com/Esper89/unicode-analyze"
