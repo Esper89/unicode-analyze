@@ -141,7 +141,9 @@ fn rtl() {
 fn invalid() {
     // $'\xF2\x80\x80\x80\xF4\x8F\xBF\xBD\xEF\xBF\xBF\xFF'
     TestCase {
-        text: Text::parse_bytes(&[242, 128, 128, 128, 244, 143, 191, 189, 239, 191, 191, 255]),
+        text: Text::parse_bytes(
+            &[0xF2, 0x80, 0x80, 0x80, 0xF4, 0x8F, 0xBF, 0xBD, 0xEF, 0xBF, 0xBF, 0xFF]
+        ),
         string_rep: "[U+080000, U+10FFFD, U+FFFF, 0xFF]",
         out: &[
             ("U+080000", "?", "UNKNOWN CHARACTER"),
