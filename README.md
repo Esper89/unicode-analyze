@@ -5,7 +5,6 @@
 ## Installation
 
 To install `unicode-analyze`, run `cargo install --git https://github.com/Esper89/unicode-analyze`.
-This crate requires a nightly installation of the Rust toolchain.
 
 ## Examples
 
@@ -114,7 +113,7 @@ U+FFFF ∅ NOT A CHARACTER
 
 ## License
 
-Copyright © 2023–2024 Esper Thomson
+Copyright © 2023–2025 Esper Thomson
 
 This program is free software: you can redistribute it and/or modify it under the terms of version 3
 of the GNU Affero General Public License, as published by the Free Software Foundation.
